@@ -1,18 +1,13 @@
-
-import os
 from typing import List
 import argparse
 import pathlib
-import numpy as np
 import torch
 import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-from torchsummary import summary
 
-from train_utils import (layer_values, Net)
+from train_utils import (compute_layers, Net)
 from utils import load_checkpoint
 
 parser = argparse.ArgumentParser(description='Pytorch Training')
@@ -24,9 +19,8 @@ parser.add_argument('--batch_size', default=256, type=int)
 parser.add_argument('--epcs', default=200, type=int)
 parser.add_argument('--lr', default=0.01, type=float)
 parser.add_argument('--output_path', default=pathlib.Path().resolve()+'/results', type=pathlib.Path)
+parser.add_argument('--reload', default=False, type=bool, help='warm start model from last epoch')
 parser.add_argument('--model_path', default='', type=pathlib.Path)
-
-
 
 args = parser.parse_args()
 
@@ -113,7 +107,7 @@ def test(epoch, net, criterion):
     return val_loss/val_total, val_correct/val_total
 
 
-def train_models(layers, lr, epcs=args.epcs, print_freq=args.epcs//10, model_path=args.warm_start_model_path, reload=True):
+def train_models(layers, lr, epcs=args.epcs, print_freq=args.epcs//10, model_path=args.warm_start_model_path, reload=args.reload):
 
     net = Net(layers=layers, initialization=args.layer_init)
     criterion = nn.CrossEntropyLoss()
@@ -121,7 +115,7 @@ def train_models(layers, lr, epcs=args.epcs, print_freq=args.epcs//10, model_pat
     optimizer = optim.SGD(net.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, t_max, eta_min=0, last_epoch=- 1, verbose=False)
 
-    if reload == True:
+    if reload:
         net, optimizer, scheduler, start_epc, losses, val_losses, accs, val_accs = load_checkpoint(net, optimizer,
                                                                                                    scheduler,
                                                                                                    filename=model_path)
@@ -171,8 +165,8 @@ def train_models(layers, lr, epcs=args.epcs, print_freq=args.epcs//10, model_pat
     return
 
 for fixed_layer in args.fixed_layer_values:
-
-
+    layers = compute_layers(params_number=args.params_number, varying_layer=1,  input_size=input_size, fixed_layer_size=fixed_layer, output_size=output_size)
+    train_models(layers=layers, lr=args.lr, epcs=args.epcs, print_freq=args.epcs//10, model_path=args.warm_start_model_path, reload=args.reload)
 
 
 

@@ -1,9 +1,10 @@
 import sympy as sym
 from typing import List
+import torch
 import torch.nn as nn
 
 
-def layer_values(params_number:int, varying_layer:int,  input_size:int, fixed_layer_size:int, output_size:int)->List(int):
+def compute_layers(params_number: int, varying_layer: int,  input_size: int, fixed_layer_size: int, output_size: int) ->List[int]:
         '''
         Function to compute varying layer values. Works with only two hidden layers at the moment.
         :param params_number: total number of parameters
@@ -24,18 +25,18 @@ def layer_values(params_number:int, varying_layer:int,  input_size:int, fixed_la
         expression = sym.lambdify(variables, solve_for_layer, modules=['math'])
         numerical_solution = expression(params_number, input_size, fixed_layer_size, output_size)
         layer_size =  int(numerical_solution)
-        assert layer_size>=1, 'must be >= 1, reduce fixed_layer_size or increase params_number'
+        assert layer_size >= 1, 'must be >= 1, reduce fixed_layer_size or increase params_number'
 
         layers_expression = sym.lambdify(layers, layers, modules=['math'])
 
-        if varying_layer==1:
+        if varying_layer == 1:
             return layers_expression(input_size, layer_size, fixed_layer_size, output_size)
         else:
             return layers_expression(input_size, fixed_layer_size, layer_size, output_size)
 
 
 class Net(nn.Module):
-    def __init__(self, layers:List[int], initialization:str):
+    def __init__(self, layers : List[int], initialization : str):
         '''
 
         :param layers: list with input, first, second, and output layer values
