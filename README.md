@@ -11,6 +11,6 @@ For these experiments we have used data augmentation and determined the number o
  - Different bottleneck widths for fixed number of parameters.
 
 References:
-[Explaining Neural Scaling Laws](https://arxiv.org/abs/2102.06701)
-[How to Start Training: The Effect of Initialization and Architecture](https://arxiv.org/abs/1803.01719)
-[SGDR: Stochastic Gradient Descent with Warm Restarts](https://arxiv.org/abs/1608.03983)
+ - [Explaining Neural Scaling Laws](https://arxiv.org/abs/2102.06701)
+ - [How to Start Training: The Effect of Initialization and Architecture](https://arxiv.org/abs/1803.01719)
+ - [SGDR: Stochastic Gradient Descent with Warm Restarts](https://arxiv.org/abs/1608.03983)
